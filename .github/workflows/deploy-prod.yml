@@ -148,3 +148,13 @@ jobs:
         run: |
           echo "Testing Production /health probe for HTTP 200 OK..."
           echo "Production Canary verification passed: 100% healthy."
+
+      # -------------------------------------------------------------
+      # 7. Trigger Render Auto-Deploy via Webhook (Optional)
+      # -------------------------------------------------------------
+      - name: Trigger Render Production Deployment
+        if: ${{ secrets.RENDER_PROD_DEPLOY_HOOK != '' }}
+        run: |
+          echo "Triggering Render to pull the latest GHCR image..."
+          curl -X POST ${{ secrets.RENDER_PROD_DEPLOY_HOOK }}
+          echo "Render deployment triggered successfully!"
