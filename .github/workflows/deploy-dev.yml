@@ -19,8 +19,61 @@ env:
   TENANCY_NAMESPACE: ${{ vars.OCI_TENANCY_NAMESPACE || 'example-tenancy' }}
 
 jobs:
+  # -------------------------------------------------------------
+  # Gate 1: Strict Quality Checks (Typecheck + Unit/Integration Tests)
+  # -------------------------------------------------------------
+  validate:
+    name: Quality Gate & Test Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package.json
+            frontend/package.json
+
+      # 1. Backend Validation
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Backend Typecheck (tsc --noEmit)
+        working-directory: ./backend
+        run: npm run typecheck
+
+      - name: Backend Unit Tests (Jest)
+        working-directory: ./backend
+        run: npm run test
+
+      # 2. Frontend Validation
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Frontend Typecheck (tsc --noEmit)
+        working-directory: ./frontend
+        run: npm run typecheck
+
+      - name: Frontend Unit Tests (Vitest)
+        working-directory: ./frontend
+        run: npm run test
+
+      - name: Frontend Build Verification (Vite)
+        working-directory: ./frontend
+        run: npm run build
+
+  # -------------------------------------------------------------
+  # Gate 2: Build & Push (ONLY runs if Gate 1 passes 100%)
+  # -------------------------------------------------------------
   build-and-deploy-dev:
     name: Build, Push to Container Registry & Deploy to Dev
+    needs: [validate]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code

@@ -1,0 +1,39 @@
+services:
+  # -------------------------------------------------------------
+  # 1. CloudPulse Backend API Service (Free Web Service)
+  # -------------------------------------------------------------
+  - type: web
+    name: cloudpulse-backend
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+
+  # -------------------------------------------------------------
+  # 2. CloudPulse Frontend SPA (Free Static Site / Web Service)
+  # -------------------------------------------------------------
+  - type: static
+    name: cloudpulse-frontend
+    plan: free
+    region: oregon
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    publishDir: dist
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://cloudpulse-backend.onrender.com/api/*
+      - type: rewrite
+        source: /health
+        destination: https://cloudpulse-backend.onrender.com/health
+      - type: rewrite
+        source: /*
+        destination: /index.html

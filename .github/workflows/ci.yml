@@ -3,8 +3,6 @@ name: CI Quality Gate & Build-Fail Check
 on:
   pull_request:
     branches: [main, develop]
-  push:
-    branches: [main, develop]
 
 jobs:
   validate-backend:
