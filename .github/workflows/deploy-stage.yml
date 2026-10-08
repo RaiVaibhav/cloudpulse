@@ -127,15 +127,24 @@ jobs:
 
       # -------------------------------------------------------------
       # 6. Trigger Render Auto-Deploy via Webhooks (Optional)
-      # -------------------------------------------------------------
       - name: Trigger Render Backend Deployment
-        if: ${{ secrets.RENDER_BACKEND_STAGE_DEPLOY_HOOK != '' }}
+        env:
+          RENDER_BACKEND_STAGE_DEPLOY_HOOK: ${{ secrets.RENDER_BACKEND_STAGE_DEPLOY_HOOK }}
         run: |
-          echo "Triggering Render to deploy Backend..."
-          curl -X POST ${{ secrets.RENDER_BACKEND_STAGE_DEPLOY_HOOK }}
+          if [ -n "$RENDER_BACKEND_STAGE_DEPLOY_HOOK" ]; then
+            echo "Triggering Render to deploy Backend..."
+            curl -X POST "$RENDER_BACKEND_STAGE_DEPLOY_HOOK"
+          else
+            echo "RENDER_BACKEND_STAGE_DEPLOY_HOOK secret is not set. Skipping."
+          fi
           
       - name: Trigger Render Frontend Deployment
-        if: ${{ secrets.RENDER_FRONTEND_STAGE_DEPLOY_HOOK != '' }}
+        env:
+          RENDER_FRONTEND_STAGE_DEPLOY_HOOK: ${{ secrets.RENDER_FRONTEND_STAGE_DEPLOY_HOOK }}
         run: |
-          echo "Triggering Render to deploy Frontend..."
-          curl -X POST ${{ secrets.RENDER_FRONTEND_STAGE_DEPLOY_HOOK }}
+          if [ -n "$RENDER_FRONTEND_STAGE_DEPLOY_HOOK" ]; then
+            echo "Triggering Render to deploy Frontend..."
+            curl -X POST "$RENDER_FRONTEND_STAGE_DEPLOY_HOOK"
+          else
+            echo "RENDER_FRONTEND_STAGE_DEPLOY_HOOK secret is not set. Skipping."
+          fi
