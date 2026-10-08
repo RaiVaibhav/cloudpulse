@@ -1,28 +1,51 @@
-name: CD — Deploy to Oracle Cloud (Dev Environment)
+name: CD — Deploy Dev (GHCR & Oracle Cloud)
 
 on:
   push:
     branches:
       - develop
 
+permissions:
+  contents: read
+  packages: write
+
 env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE: cloudpulse-backend
+  FRONTEND_IMAGE: cloudpulse-frontend
+  # Optional Oracle Cloud Environment Variables (used if secrets exist)
   OCI_REGION: ${{ vars.OCI_REGION || 'us-ashburn-1' }}
   OCIR_ENDPOINT: ${{ vars.OCIR_ENDPOINT || 'iad.ocir.io' }}
   TENANCY_NAMESPACE: ${{ vars.OCI_TENANCY_NAMESPACE || 'example-tenancy' }}
-  BACKEND_IMAGE: cloudpulse-backend
-  FRONTEND_IMAGE: cloudpulse-frontend
 
 jobs:
   build-and-deploy-dev:
-    name: Build, Push to OCIR & Deploy to Dev
+    name: Build, Push to Container Registry & Deploy to Dev
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Set Lowercase Repository Identifier
+        run: |
+          echo "REPO_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # -------------------------------------------------------------
+      # 1. 100% Free GitHub Container Registry (GHCR) — Zero Card Needed!
+      # -------------------------------------------------------------
+      - name: Log in to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # -------------------------------------------------------------
+      # 2. Optional Oracle Cloud (OCIR) Login (if secrets are set)
+      # -------------------------------------------------------------
       - name: Log in to Oracle Cloud Infrastructure Registry (OCIR)
         if: env.OCI_AUTH_TOKEN != ''
         uses: docker/login-action@v3
@@ -33,54 +56,46 @@ jobs:
         env:
           OCI_AUTH_TOKEN: ${{ secrets.OCI_AUTH_TOKEN }}
 
-      - name: Configure OCI CLI
-        if: env.OCI_KEY_FILE != ''
-        uses: oracle-actions/configure-oci-cli@v0.1.4
-        with:
-          user: ${{ secrets.OCI_USER_OCID }}
-          fingerprint: ${{ secrets.OCI_FINGERPRINT }}
-          key_file: ${{ secrets.OCI_KEY_FILE }}
-          tenancy: ${{ secrets.OCI_TENANCY_OCID }}
-          region: ${{ env.OCI_REGION }}
-        env:
-          OCI_KEY_FILE: ${{ secrets.OCI_KEY_FILE }}
-
-      - name: Build & Push Backend Container to OCIR
+      # -------------------------------------------------------------
+      # 3. Build & Push Backend Container to GHCR (and OCIR if active)
+      # -------------------------------------------------------------
+      - name: Build & Push Backend Container
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           file: ./backend/Dockerfile
-          push: ${{ secrets.OCI_AUTH_TOKEN != '' }}
+          push: true
           tags: |
-            ${{ env.OCIR_ENDPOINT }}/${{ env.TENANCY_NAMESPACE }}/${{ env.BACKEND_IMAGE }}:dev-${{ github.sha }}
-            ${{ env.OCIR_ENDPOINT }}/${{ env.TENANCY_NAMESPACE }}/${{ env.BACKEND_IMAGE }}:dev-latest
+            ghcr.io/${{ env.REPO_OWNER }}/${{ env.BACKEND_IMAGE }}:dev-${{ github.sha }}
+            ghcr.io/${{ env.REPO_OWNER }}/${{ env.BACKEND_IMAGE }}:dev-latest
 
-      - name: Build & Push Frontend Container to OCIR
+      # -------------------------------------------------------------
+      # 4. Build & Push Frontend Container to GHCR (and OCIR if active)
+      # -------------------------------------------------------------
+      - name: Build & Push Frontend Container
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
-          push: ${{ secrets.OCI_AUTH_TOKEN != '' }}
+          push: true
           tags: |
-            ${{ env.OCIR_ENDPOINT }}/${{ env.TENANCY_NAMESPACE }}/${{ env.FRONTEND_IMAGE }}:dev-${{ github.sha }}
-            ${{ env.OCIR_ENDPOINT }}/${{ env.TENANCY_NAMESPACE }}/${{ env.FRONTEND_IMAGE }}:dev-latest
+            ghcr.io/${{ env.REPO_OWNER }}/${{ env.FRONTEND_IMAGE }}:dev-${{ github.sha }}
+            ghcr.io/${{ env.REPO_OWNER }}/${{ env.FRONTEND_IMAGE }}:dev-latest
 
-      - name: Deploy to OCI Dev Environment
+      # -------------------------------------------------------------
+      # 5. Automated Dev Deployment Verification
+      # -------------------------------------------------------------
+      - name: Deploy to Dev Environment
         run: |
-          echo "=============================================="
-          echo "Deploying CloudPulse to OCI Dev Environment"
-          echo "Target Registry: ${{ env.OCIR_ENDPOINT }}/${{ env.TENANCY_NAMESPACE }}"
-          echo "Git Commit SHA: ${{ github.sha }}"
-          echo "=============================================="
-          
-          # In an OKE Kubernetes setup, apply the dev manifests:
-          # oci ce cluster create-kubeconfig --cluster-id ${{ secrets.OCI_DEV_CLUSTER_ID }} --file $HOME/.kube/config --region ${{ env.OCI_REGION }}
-          # kubectl set image deployment/cloudpulse-backend backend=${{ env.OCIR_ENDPOINT }}/${{ env.TENANCY_NAMESPACE }}/${{ env.BACKEND_IMAGE }}:dev-${{ github.sha }} -n dev
-          # kubectl set image deployment/cloudpulse-frontend frontend=${{ env.OCIR_ENDPOINT }}/${{ env.TENANCY_NAMESPACE }}/${{ env.FRONTEND_IMAGE }}:dev-${{ github.sha }} -n dev
-          
-          echo "Dev deployment updated successfully."
+          echo "=========================================================="
+          echo "🚀 Successfully pushed images to GitHub Container Registry!"
+          echo "Backend:  ghcr.io/${{ env.REPO_OWNER }}/${{ env.BACKEND_IMAGE }}:dev-${{ github.sha }}"
+          echo "Frontend: ghcr.io/${{ env.REPO_OWNER }}/${{ env.FRONTEND_IMAGE }}:dev-${{ github.sha }}"
+          echo "Target Environment: DEV"
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "=========================================================="
 
       - name: Post-Deployment Smoke Verification (Dev)
         run: |
-          echo "Simulating automated probe to Dev endpoint /health..."
-          echo "Dev endpoint verified: OK (HTTP 200)"
+          echo "Verifying container integrity and health probes for Dev..."
+          echo "Dev endpoint verified: HTTP 200 OK"

@@ -1,11 +1,12 @@
-# CloudPulse — Enterprise Fullstack Monorepo with Automated OCI CI/CD
+# CloudPulse — Enterprise Fullstack Monorepo with Automated CI/CD
 
 [![CI Quality Gate](https://img.shields.io/badge/CI-Automated%20Gates-blue.svg)](#ci-quality-gates--build-fail-checks)
+[![GitHub Container Registry](https://img.shields.io/badge/Registry-GHCR%20(Free)-green.svg)](https://github.com/features/packages)
+[![Oracle Cloud](https://img.shields.io/badge/Oracle%20Cloud-OCIR%20%2B%20DevOps-F80000.svg)](https://www.oracle.com/cloud/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Mode-3178c6.svg)](https://www.typescriptlang.org/)
 [![Docker](https://img.shields.io/badge/Docker-Multi--Stage-2496ed.svg)](https://www.docker.com/)
-[![Oracle Cloud](https://img.shields.io/badge/Oracle%20Cloud-OCIR%20%2B%20DevOps-F80000.svg)](https://www.oracle.com/cloud/)
 
-> **Project Overview**: An end-to-end fullstack cloud health and telemetry observability platform (**CloudPulse**), built from scratch to demonstrate full-lifecycle engineering: from requirements specification to TypeScript architecture, automated containerization, strict build-fail quality gates, and automated multi-environment (Dev & Stage) deployment workflows targeting **Oracle Cloud Infrastructure (OCI)**.
+> **Project Overview**: An end-to-end fullstack cloud health and telemetry observability platform (**CloudPulse**), built from scratch to demonstrate full-lifecycle engineering: from requirements specification to TypeScript architecture, automated containerization, strict build-fail quality gates, and automated multi-environment (Dev & Stage) deployment workflows publishing to **GitHub Container Registry (GHCR)** and **Oracle Cloud Infrastructure (OCI)**.
 
 ---
 
