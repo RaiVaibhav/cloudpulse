@@ -4,11 +4,11 @@ services:
   # =============================================================
   - type: web
     name: cloudpulse-backend-dev
-    env: docker
+    env: image
+    image:
+      url: ghcr.io/raivaibhav/cloudpulse-backend:dev-latest
     plan: free
     region: oregon
-    branch: develop
-    rootDir: backend
     healthCheckPath: /health
     envVars:
       - key: NODE_VERSION
@@ -40,11 +40,11 @@ services:
   # =============================================================
   - type: web
     name: cloudpulse-backend-stage
-    env: docker
+    env: image
+    image:
+      url: ghcr.io/raivaibhav/cloudpulse-backend:stage-latest
     plan: free
     region: oregon
-    branch: main
-    rootDir: backend
     healthCheckPath: /health
     envVars:
       - key: NODE_VERSION
@@ -76,11 +76,11 @@ services:
   # =============================================================
   - type: web
     name: cloudpulse-backend-prod
-    env: docker
+    env: image
+    image:
+      url: ghcr.io/raivaibhav/cloudpulse-backend:prod-latest
     plan: free
     region: oregon
-    branch: main
-    rootDir: backend
     healthCheckPath: /health
     envVars:
       - key: NODE_VERSION
