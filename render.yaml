@@ -4,13 +4,11 @@ services:
   # =============================================================
   - type: web
     name: cloudpulse-backend-dev
-    env: node
+    env: docker
     plan: free
     region: oregon
     branch: develop
     rootDir: backend
-    buildCommand: cd .. && npm install --include=dev && npm run build --workspace=backend
-    startCommand: npm run start
     healthCheckPath: /health
     envVars:
       - key: NODE_VERSION
@@ -42,13 +40,11 @@ services:
   # =============================================================
   - type: web
     name: cloudpulse-backend-stage
-    env: node
+    env: docker
     plan: free
     region: oregon
     branch: main
     rootDir: backend
-    buildCommand: cd .. && npm install --include=dev && npm run build --workspace=backend
-    startCommand: npm run start
     healthCheckPath: /health
     envVars:
       - key: NODE_VERSION
@@ -80,13 +76,11 @@ services:
   # =============================================================
   - type: web
     name: cloudpulse-backend-prod
-    env: node
+    env: docker
     plan: free
     region: oregon
     branch: main
     rootDir: backend
-    buildCommand: cd .. && npm install --include=dev && npm run build --workspace=backend
-    startCommand: npm run start
     healthCheckPath: /health
     envVars:
       - key: NODE_VERSION
