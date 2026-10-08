@@ -150,11 +150,16 @@ jobs:
           echo "Production Canary verification passed: 100% healthy."
 
       # -------------------------------------------------------------
-      # 7. Trigger Render Auto-Deploy via Webhook (Optional)
+      # 7. Trigger Render Auto-Deploy via Webhooks (Optional)
       # -------------------------------------------------------------
-      - name: Trigger Render Production Deployment
-        if: ${{ secrets.RENDER_PROD_DEPLOY_HOOK != '' }}
+      - name: Trigger Render Backend Deployment
+        if: ${{ secrets.RENDER_BACKEND_PROD_DEPLOY_HOOK != '' }}
         run: |
-          echo "Triggering Render to pull the latest GHCR image..."
-          curl -X POST ${{ secrets.RENDER_PROD_DEPLOY_HOOK }}
-          echo "Render deployment triggered successfully!"
+          echo "Triggering Render to deploy Backend..."
+          curl -X POST ${{ secrets.RENDER_BACKEND_PROD_DEPLOY_HOOK }}
+          
+      - name: Trigger Render Frontend Deployment
+        if: ${{ secrets.RENDER_FRONTEND_PROD_DEPLOY_HOOK != '' }}
+        run: |
+          echo "Triggering Render to deploy Frontend..."
+          curl -X POST ${{ secrets.RENDER_FRONTEND_PROD_DEPLOY_HOOK }}

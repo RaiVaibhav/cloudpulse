@@ -126,11 +126,16 @@ jobs:
           echo "Dev endpoint verified: HTTP 200 OK"
 
       # -------------------------------------------------------------
-      # 6. Trigger Render Auto-Deploy via Webhook (Optional)
+      # 6. Trigger Render Auto-Deploy via Webhooks (Optional)
       # -------------------------------------------------------------
-      - name: Trigger Render Dev Deployment
-        if: ${{ secrets.RENDER_DEV_DEPLOY_HOOK != '' }}
+      - name: Trigger Render Backend Deployment
+        if: ${{ secrets.RENDER_BACKEND_DEV_DEPLOY_HOOK != '' }}
         run: |
-          echo "Triggering Render to pull the latest GHCR image..."
-          curl -X POST ${{ secrets.RENDER_DEV_DEPLOY_HOOK }}
-          echo "Render deployment triggered successfully!"
+          echo "Triggering Render to deploy Backend..."
+          curl -X POST ${{ secrets.RENDER_BACKEND_DEV_DEPLOY_HOOK }}
+          
+      - name: Trigger Render Frontend Deployment
+        if: ${{ secrets.RENDER_FRONTEND_DEV_DEPLOY_HOOK != '' }}
+        run: |
+          echo "Triggering Render to deploy Frontend..."
+          curl -X POST ${{ secrets.RENDER_FRONTEND_DEV_DEPLOY_HOOK }}
