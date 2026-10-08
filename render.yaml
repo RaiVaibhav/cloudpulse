@@ -9,7 +9,7 @@ services:
     region: oregon
     branch: develop
     rootDir: backend
-    buildCommand: npm install && npm run build
+    buildCommand: cd .. && npm install --include=dev && npm run build --workspace=backend
     startCommand: npm run start
     healthCheckPath: /health
     envVars:
@@ -23,7 +23,7 @@ services:
     env: static
     branch: develop
     rootDir: frontend
-    buildCommand: npm install && npm run build
+    buildCommand: cd .. && npm install --include=dev && npm run build --workspace=frontend
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
@@ -43,7 +43,7 @@ services:
     region: oregon
     branch: main
     rootDir: backend
-    buildCommand: npm install && npm run build
+    buildCommand: cd .. && npm install --include=dev && npm run build --workspace=backend
     startCommand: npm run start
     healthCheckPath: /health
     envVars:
@@ -57,7 +57,7 @@ services:
     env: static
     branch: main
     rootDir: frontend
-    buildCommand: npm install && npm run build
+    buildCommand: cd .. && npm install --include=dev && npm run build --workspace=frontend
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
@@ -77,7 +77,7 @@ services:
     region: oregon
     branch: main
     rootDir: backend
-    buildCommand: npm install && npm run build
+    buildCommand: cd .. && npm install --include=dev && npm run build --workspace=backend
     startCommand: npm run start
     healthCheckPath: /health
     envVars:
@@ -91,7 +91,7 @@ services:
     env: static
     branch: main
     rootDir: frontend
-    buildCommand: npm install && npm run build
+    buildCommand: cd .. && npm install --include=dev && npm run build --workspace=frontend
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
