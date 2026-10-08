@@ -6,7 +6,7 @@ describe('CloudPulse App Integration', () => {
   it('renders application header and title', async () => {
     render(<App />);
     expect(screen.getByText('CloudPulse')).toBeDefined();
-    expect(screen.getByText(/OCI Observability & Microservices Health Portal/i)).toBeDefined();
+    expect(screen.getByText(/Observability & Microservices Health Portal/i)).toBeDefined();
   });
 
   it('renders metrics cards', () => {
