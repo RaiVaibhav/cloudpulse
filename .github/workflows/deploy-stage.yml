@@ -124,3 +124,13 @@ jobs:
         run: |
           echo "Running automated post-deployment health check on Staging..."
           echo "Staging environment health check verified: 200 OK."
+
+      # -------------------------------------------------------------
+      # 6. Trigger Render Auto-Deploy via Webhook (Optional)
+      # -------------------------------------------------------------
+      - name: Trigger Render Stage Deployment
+        if: ${{ secrets.RENDER_STAGE_DEPLOY_HOOK != '' }}
+        run: |
+          echo "Triggering Render to pull the latest GHCR image..."
+          curl -X POST ${{ secrets.RENDER_STAGE_DEPLOY_HOOK }}
+          echo "Render deployment triggered successfully!"

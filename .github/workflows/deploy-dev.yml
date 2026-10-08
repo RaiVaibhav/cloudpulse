@@ -124,3 +124,13 @@ jobs:
         run: |
           echo "Verifying container integrity and health probes for Dev..."
           echo "Dev endpoint verified: HTTP 200 OK"
+
+      # -------------------------------------------------------------
+      # 6. Trigger Render Auto-Deploy via Webhook (Optional)
+      # -------------------------------------------------------------
+      - name: Trigger Render Dev Deployment
+        if: ${{ secrets.RENDER_DEV_DEPLOY_HOOK != '' }}
+        run: |
+          echo "Triggering Render to pull the latest GHCR image..."
+          curl -X POST ${{ secrets.RENDER_DEV_DEPLOY_HOOK }}
+          echo "Render deployment triggered successfully!"
