@@ -20,14 +20,14 @@ export const Header: React.FC<HeaderProps> = ({ health, onRefresh, loading }) =>
           <h1 className="brand-title">CloudPulse</h1>
           <p className="brand-subtitle">
             <span className="live-indicator"></span>
-            OCI Observability & Microservices Health Portal
+            Observability & Microservices Health Portal
           </p>
         </div>
       </div>
 
       <div className="header-badges">
         <span className="pill-badge oracle">
-          OCI Region: us-ashburn-1
+          Cloud Region: us-ashburn-1
         </span>
         <span className="pill-badge">
           Env: {health?.environment || 'loading...'}

@@ -148,3 +148,27 @@ jobs:
         run: |
           echo "Testing Production /health probe for HTTP 200 OK..."
           echo "Production Canary verification passed: 100% healthy."
+
+      # -------------------------------------------------------------
+      # 7. Trigger Render Auto-Deploy via Webhooks (Optional)
+      - name: Trigger Render Backend Deployment
+        env:
+          RENDER_BACKEND_PROD_DEPLOY_HOOK: ${{ secrets.RENDER_BACKEND_PROD_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$RENDER_BACKEND_PROD_DEPLOY_HOOK" ]; then
+            echo "Triggering Render to deploy Backend..."
+            curl -X POST "$RENDER_BACKEND_PROD_DEPLOY_HOOK"
+          else
+            echo "RENDER_BACKEND_PROD_DEPLOY_HOOK secret is not set. Skipping."
+          fi
+          
+      - name: Trigger Render Frontend Deployment
+        env:
+          RENDER_FRONTEND_PROD_DEPLOY_HOOK: ${{ secrets.RENDER_FRONTEND_PROD_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$RENDER_FRONTEND_PROD_DEPLOY_HOOK" ]; then
+            echo "Triggering Render to deploy Frontend..."
+            curl -X POST "$RENDER_FRONTEND_PROD_DEPLOY_HOOK"
+          else
+            echo "RENDER_FRONTEND_PROD_DEPLOY_HOOK secret is not set. Skipping."
+          fi

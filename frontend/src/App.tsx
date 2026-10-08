@@ -43,7 +43,7 @@ export const App: React.FC = () => {
         setServices([
           {
             id: 'srv-gateway',
-            name: 'OCI API Gateway',
+            name: 'API Gateway',
             status: 'operational',
             latencyMs: 18,
             region: 'us-ashburn-1',
@@ -59,7 +59,7 @@ export const App: React.FC = () => {
           },
           {
             id: 'srv-queue',
-            name: 'OCI Streaming & Queue',
+            name: 'Streaming & Queue',
             status: 'degraded',
             latencyMs: 142,
             region: 'us-ashburn-1',
@@ -76,7 +76,7 @@ export const App: React.FC = () => {
           {
             id: 'inc-sample',
             title: 'Sample Telemetry Advisory',
-            service: 'OCI Streaming & Queue',
+            service: 'Streaming & Queue',
             severity: 'warning',
             description: 'Backlog consumer queues experiencing minor delay during sync.',
             timestamp: new Date().toISOString(),
@@ -135,7 +135,7 @@ export const App: React.FC = () => {
           <div className="metric-val" style={{ color: activeIncidents === 0 ? '#10b981' : '#f59e0b' }}>
             {activeIncidents === 0 ? 'All Systems Nominal' : 'Partial Degradation'}
           </div>
-          <div className="metric-sub mono">OCI Health Ping Status: 200 OK</div>
+          <div className="metric-sub mono">Health Ping Status: 200 OK</div>
         </div>
 
         <div className="metric-card">

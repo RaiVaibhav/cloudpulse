@@ -20,7 +20,7 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({
   onSubmit,
 }) => {
   const [title, setTitle] = useState('');
-  const [service, setService] = useState(services[0]?.name || 'OCI API Gateway');
+  const [service, setService] = useState(services[0]?.name || 'API Gateway');
   const [severity, setSeverity] = useState<IncidentSeverity>('warning');
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
