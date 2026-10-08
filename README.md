@@ -1,7 +1,7 @@
-# CloudPulse — Enterprise Fullstack Monorepo with Automated CI/CD
+# CloudPulse: Enterprise Fullstack Monorepo with Automated CI/CD
 
 [![CI Quality Gate](https://img.shields.io/badge/CI-Automated%20Gates-blue.svg)](#ci-quality-gates--build-fail-checks)
-[![GitHub Container Registry](https://img.shields.io/badge/Registry-GHCR%20(Free)-green.svg)](https://github.com/features/packages)
+[![GitHub Container Registry](<https://img.shields.io/badge/Registry-GHCR%20(Free)-green.svg>)](https://github.com/features/packages)
 [![Oracle Cloud](https://img.shields.io/badge/Oracle%20Cloud-OCIR%20%2B%20DevOps-F80000.svg)](https://www.oracle.com/cloud/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Mode-3178c6.svg)](https://www.typescriptlang.org/)
 [![Docker](https://img.shields.io/badge/Docker-Multi--Stage-2496ed.svg)](https://www.docker.com/)
@@ -115,20 +115,24 @@ setup-oracle-ci-cd/
 ### Option 1: Native Node.js & Workspaces
 
 1. **Install all dependencies across both packages:**
+
    ```bash
    npm install
    ```
 
 2. **Execute all Typecheck and Test validation suites:**
+
    ```bash
    npm run ci:check
    ```
-   *(This runs `npm run typecheck`, `npm run test`, and `npm run build` across frontend and backend).*
+
+   _(This runs `npm run typecheck`, `npm run test`, and `npm run build` across frontend and backend)._
 
 3. **Start both Backend and Frontend concurrently:**
    ```bash
    npm run dev
    ```
+
    - Frontend: `http://localhost:3000`
    - Backend API: `http://localhost:4000`
    - Health Probe: `http://localhost:4000/health`
@@ -138,15 +142,18 @@ setup-oracle-ci-cd/
 ### Option 2: Docker Compose (Recommended)
 
 1. **Launch the development environment:**
+
    ```bash
    docker compose up --build
    ```
-   *Features live hot-reloading for code changes in both frontend and backend.*
+
+   _Features live hot-reloading for code changes in both frontend and backend._
 
 2. **Simulate the Production / Staging multi-stage containers:**
    ```bash
    docker compose -f docker-compose.stage.yml up --build
    ```
+
    - Frontend is compiled into static production assets served via **NGINX Alpine** on port `80`.
    - Backend runs in a lean, hardened Node Alpine image on port `4000`.
 
@@ -156,14 +163,14 @@ setup-oracle-ci-cd/
 
 The continuous integration pipeline (`.github/workflows/ci.yml`) enforces zero-defect gates:
 
-| Gate | Check Command | Failure Condition | Impact |
-|---|---|---|---|
-| **Backend Typecheck** | `npm run typecheck` (`tsc --noEmit`) | Any compiler warning/error | Pipeline terminates (Exit 1) |
-| **Backend Test Suite** | `npm run test` (Jest + Supertest) | Any failing unit/integration test | Pipeline terminates (Exit 1) |
-| **Frontend Typecheck**| `npm run typecheck` (`tsc --noEmit`) | Missing/invalid TypeScript types | Pipeline terminates (Exit 1) |
-| **Frontend Test Suite**| `npm run test` (Vitest + JSDOM) | Component rendering or logic break | Pipeline terminates (Exit 1) |
-| **Frontend Production Build** | `npm run build` (`vite build`) | Asset compilation error | Pipeline terminates (Exit 1) |
-| **Docker Smoke Verification** | `docker run + curl /health` | Image build error or status != 200 | Pipeline terminates (Exit 1) |
+| Gate                          | Check Command                        | Failure Condition                  | Impact                       |
+| ----------------------------- | ------------------------------------ | ---------------------------------- | ---------------------------- |
+| **Backend Typecheck**         | `npm run typecheck` (`tsc --noEmit`) | Any compiler warning/error         | Pipeline terminates (Exit 1) |
+| **Backend Test Suite**        | `npm run test` (Jest + Supertest)    | Any failing unit/integration test  | Pipeline terminates (Exit 1) |
+| **Frontend Typecheck**        | `npm run typecheck` (`tsc --noEmit`) | Missing/invalid TypeScript types   | Pipeline terminates (Exit 1) |
+| **Frontend Test Suite**       | `npm run test` (Vitest + JSDOM)      | Component rendering or logic break | Pipeline terminates (Exit 1) |
+| **Frontend Production Build** | `npm run build` (`vite build`)       | Asset compilation error            | Pipeline terminates (Exit 1) |
+| **Docker Smoke Verification** | `docker run + curl /health`          | Image build error or status != 200 | Pipeline terminates (Exit 1) |
 
 ---
 
@@ -196,6 +203,7 @@ This project supports two production-ready deployment methodologies:
 ### Methodology B: Native OCI DevOps Service
 
 The repository includes native OCI DevOps pipeline definitions:
+
 - **`.oci/build_spec.yaml`**: Utilized by OCI DevOps Build Pipelines to compile, test, and register container images in OCIR directly inside Oracle Cloud.
 - **`.oci/deploy_spec.yaml`**: Utilized by OCI DevOps Deployment Pipelines for automated zero-downtime rolling deployments to OCI Container Instances or OKE with auto-rollback.
 
@@ -205,13 +213,13 @@ The repository includes native OCI DevOps pipeline definitions:
 
 To link this repository to your Oracle Cloud tenancy, populate the following repository secrets:
 
-| Secret | Description |
-|---|---|
-| `OCI_TENANCY_OCID` | Tenancy OCID from OCI Console |
-| `OCI_USER_OCID` | Dedicated CI/CD User OCID |
-| `OCI_FINGERPRINT` | OCI API Signing Key Fingerprint |
-| `OCI_KEY_FILE` | Base64-encoded private key |
-| `OCI_REGION` | OCI Region (e.g. `us-ashburn-1`) |
-| `OCI_TENANCY_NAMESPACE`| Tenancy Object Storage Namespace |
-| `OCI_REGISTRY_USER` | `<tenancy-namespace>/<username>` |
-| `OCI_AUTH_TOKEN` | OCI Auth Token generated for OCIR |
+| Secret                  | Description                       |
+| ----------------------- | --------------------------------- |
+| `OCI_TENANCY_OCID`      | Tenancy OCID from OCI Console     |
+| `OCI_USER_OCID`         | Dedicated CI/CD User OCID         |
+| `OCI_FINGERPRINT`       | OCI API Signing Key Fingerprint   |
+| `OCI_KEY_FILE`          | Base64-encoded private key        |
+| `OCI_REGION`            | OCI Region (e.g. `us-ashburn-1`)  |
+| `OCI_TENANCY_NAMESPACE` | Tenancy Object Storage Namespace  |
+| `OCI_REGISTRY_USER`     | `<tenancy-namespace>/<username>`  |
+| `OCI_AUTH_TOKEN`        | OCI Auth Token generated for OCIR |
