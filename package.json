@@ -1,0 +1,33 @@
+{
+  "name": "setup-oracle-ci-cd-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "End-to-End Enterprise Fullstack Monorepo with Automated CI/CD for Oracle Cloud",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=backend & npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=backend && npm run build --workspace=frontend",
+    "test": "npm run test --workspace=backend && npm run test --workspace=frontend",
+    "typecheck": "npm run typecheck --workspace=backend && npm run typecheck --workspace=frontend",
+    "lint": "npm run lint --workspace=backend && npm run lint --workspace=frontend",
+    "ci:check": "npm run typecheck && npm run test && npm run build",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:stage:up": "docker compose -f docker-compose.stage.yml up -d --build"
+  },
+  "keywords": [
+    "oracle-cloud",
+    "ci-cd",
+    "typescript",
+    "react",
+    "express",
+    "docker",
+    "github-actions"
+  ],
+  "author": "",
+  "license": "MIT"
+}

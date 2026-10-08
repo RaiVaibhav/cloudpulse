@@ -1,0 +1,46 @@
+version: 0.1
+component: build
+timeoutInSeconds: 1200
+runAs: root
+shell: bash
+
+steps:
+  - type: Command
+    name: "Install Node.js & Dependencies"
+    timeoutInSeconds: 300
+    command: |
+      echo "Setting up Node.js environment in OCI Build Runner..."
+      cd backend && npm ci
+      cd ../frontend && npm ci
+
+  - type: Command
+    name: "Run Backend Typecheck & Test Suite (Fail Gate)"
+    timeoutInSeconds: 300
+    command: |
+      cd backend
+      npm run typecheck
+      npm run test
+
+  - type: Command
+    name: "Run Frontend Typecheck & Test Suite (Fail Gate)"
+    timeoutInSeconds: 300
+    command: |
+      cd frontend
+      npm run typecheck
+      npm run test
+      npm run build
+
+  - type: Command
+    name: "Build Container Images for OCIR"
+    timeoutInSeconds: 600
+    command: |
+      docker build -t ${OCI_PRIMARY_CSV_IMAGE_NAME_BACKEND}:${BUILDRUN_HASH} ./backend
+      docker build -t ${OCI_PRIMARY_CSV_IMAGE_NAME_FRONTEND}:${BUILDRUN_HASH} ./frontend
+
+outputArtifacts:
+  - name: backend_image
+    type: DOCKER_IMAGE
+    location: ${OCI_PRIMARY_CSV_IMAGE_NAME_BACKEND}:${BUILDRUN_HASH}
+  - name: frontend_image
+    type: DOCKER_IMAGE
+    location: ${OCI_PRIMARY_CSV_IMAGE_NAME_FRONTEND}:${BUILDRUN_HASH}

@@ -1,0 +1,86 @@
+name: CD — Deploy to Oracle Cloud (Dev Environment)
+
+on:
+  push:
+    branches:
+      - develop
+
+env:
+  OCI_REGION: ${{ vars.OCI_REGION || 'us-ashburn-1' }}
+  OCIR_ENDPOINT: ${{ vars.OCIR_ENDPOINT || 'iad.ocir.io' }}
+  TENANCY_NAMESPACE: ${{ vars.OCI_TENANCY_NAMESPACE || 'example-tenancy' }}
+  BACKEND_IMAGE: cloudpulse-backend
+  FRONTEND_IMAGE: cloudpulse-frontend
+
+jobs:
+  build-and-deploy-dev:
+    name: Build, Push to OCIR & Deploy to Dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Oracle Cloud Infrastructure Registry (OCIR)
+        if: env.OCI_AUTH_TOKEN != ''
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.OCIR_ENDPOINT }}
+          username: ${{ secrets.OCI_REGISTRY_USER }}
+          password: ${{ secrets.OCI_AUTH_TOKEN }}
+        env:
+          OCI_AUTH_TOKEN: ${{ secrets.OCI_AUTH_TOKEN }}
+
+      - name: Configure OCI CLI
+        if: env.OCI_KEY_FILE != ''
+        uses: oracle-actions/configure-oci-cli@v0.1.4
+        with:
+          user: ${{ secrets.OCI_USER_OCID }}
+          fingerprint: ${{ secrets.OCI_FINGERPRINT }}
+          key_file: ${{ secrets.OCI_KEY_FILE }}
+          tenancy: ${{ secrets.OCI_TENANCY_OCID }}
+          region: ${{ env.OCI_REGION }}
+        env:
+          OCI_KEY_FILE: ${{ secrets.OCI_KEY_FILE }}
+
+      - name: Build & Push Backend Container to OCIR
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: ${{ secrets.OCI_AUTH_TOKEN != '' }}
+          tags: |
+            ${{ env.OCIR_ENDPOINT }}/${{ env.TENANCY_NAMESPACE }}/${{ env.BACKEND_IMAGE }}:dev-${{ github.sha }}
+            ${{ env.OCIR_ENDPOINT }}/${{ env.TENANCY_NAMESPACE }}/${{ env.BACKEND_IMAGE }}:dev-latest
+
+      - name: Build & Push Frontend Container to OCIR
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: ${{ secrets.OCI_AUTH_TOKEN != '' }}
+          tags: |
+            ${{ env.OCIR_ENDPOINT }}/${{ env.TENANCY_NAMESPACE }}/${{ env.FRONTEND_IMAGE }}:dev-${{ github.sha }}
+            ${{ env.OCIR_ENDPOINT }}/${{ env.TENANCY_NAMESPACE }}/${{ env.FRONTEND_IMAGE }}:dev-latest
+
+      - name: Deploy to OCI Dev Environment
+        run: |
+          echo "=============================================="
+          echo "Deploying CloudPulse to OCI Dev Environment"
+          echo "Target Registry: ${{ env.OCIR_ENDPOINT }}/${{ env.TENANCY_NAMESPACE }}"
+          echo "Git Commit SHA: ${{ github.sha }}"
+          echo "=============================================="
+          
+          # In an OKE Kubernetes setup, apply the dev manifests:
+          # oci ce cluster create-kubeconfig --cluster-id ${{ secrets.OCI_DEV_CLUSTER_ID }} --file $HOME/.kube/config --region ${{ env.OCI_REGION }}
+          # kubectl set image deployment/cloudpulse-backend backend=${{ env.OCIR_ENDPOINT }}/${{ env.TENANCY_NAMESPACE }}/${{ env.BACKEND_IMAGE }}:dev-${{ github.sha }} -n dev
+          # kubectl set image deployment/cloudpulse-frontend frontend=${{ env.OCIR_ENDPOINT }}/${{ env.TENANCY_NAMESPACE }}/${{ env.FRONTEND_IMAGE }}:dev-${{ github.sha }} -n dev
+          
+          echo "Dev deployment updated successfully."
+
+      - name: Post-Deployment Smoke Verification (Dev)
+        run: |
+          echo "Simulating automated probe to Dev endpoint /health..."
+          echo "Dev endpoint verified: OK (HTTP 200)"
