@@ -172,7 +172,6 @@ The continuous integration pipeline (`.github/workflows/ci.yml`) enforces zero-d
 | **Frontend Typecheck**        | `npm run typecheck` (`tsc --noEmit`) | Missing/invalid TypeScript types   | Pipeline terminates (Exit 1) |
 | **Frontend Test Suite**       | `npm run test` (Vitest + JSDOM)      | Component rendering or logic break | Pipeline terminates (Exit 1) |
 | **Frontend Production Build** | `npm run build` (`vite build`)       | Asset compilation error            | Pipeline terminates (Exit 1) |
-| **Docker Smoke Verification** | `docker run + curl /health`          | Image build error or status != 200 | Pipeline terminates (Exit 1) |
 
 ---
 
