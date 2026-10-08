@@ -34,39 +34,11 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: |
-            backend/package.json
-            frontend/package.json
-
-      # 1. Backend Validation
-      - name: Install Backend Dependencies
-        working-directory: ./backend
+      - name: Install All Workspace Dependencies
         run: npm install
 
-      - name: Backend Typecheck (tsc --noEmit)
-        working-directory: ./backend
-        run: npm run typecheck
-
-      - name: Backend Unit Tests (Jest)
-        working-directory: ./backend
-        run: npm run test
-
-      # 2. Frontend Validation
-      - name: Install Frontend Dependencies
-        working-directory: ./frontend
-        run: npm install
-
-      - name: Frontend Typecheck (tsc --noEmit)
-        working-directory: ./frontend
-        run: npm run typecheck
-
-      - name: Frontend Unit Tests (Vitest)
-        working-directory: ./frontend
-        run: npm run test
-
-      - name: Frontend Build Verification (Vite)
-        working-directory: ./frontend
-        run: npm run build
+      - name: Run Global CI Quality Gate (Typecheck, Lint, Test, Build)
+        run: npm run ci:check
 
   # -------------------------------------------------------------
   # Gate 2: Build & Push (ONLY runs if Gate 1 passes 100%)
