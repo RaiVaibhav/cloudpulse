@@ -1,12 +1,81 @@
 services:
-  # -------------------------------------------------------------
-  # 1. CloudPulse Backend API (Free Web Service)
-  # -------------------------------------------------------------
+  # =============================================================
+  # 🟢 DEV ENVIRONMENT (Tracks 'develop' branch)
+  # =============================================================
   - type: web
-    name: cloudpulse-backend
-    runtime: node
+    name: cloudpulse-backend-dev
+    env: node
     plan: free
     region: oregon
+    branch: develop
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: development
+      - key: PORT
+        value: 10000
+
+  - type: web
+    name: cloudpulse-frontend-dev
+    env: static
+    branch: develop
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://cloudpulse-backend-dev.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # =============================================================
+  # 🟡 STAGING ENVIRONMENT (Tracks 'main' branch)
+  # =============================================================
+  - type: web
+    name: cloudpulse-backend-stage
+    env: node
+    plan: free
+    region: oregon
+    branch: main
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: staging
+      - key: PORT
+        value: 10000
+
+  - type: web
+    name: cloudpulse-frontend-stage
+    env: static
+    branch: main
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://cloudpulse-backend-stage.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # =============================================================
+  # 🔴 PRODUCTION ENVIRONMENT (Tracks 'main' release branch)
+  # =============================================================
+  - type: web
+    name: cloudpulse-backend-prod
+    env: node
+    plan: free
+    region: oregon
+    branch: main
     rootDir: backend
     buildCommand: npm install && npm run build
     startCommand: npm run start
@@ -17,15 +86,16 @@ services:
       - key: PORT
         value: 10000
 
-  # -------------------------------------------------------------
-  # 2. CloudPulse Frontend SPA (Free Static Web Service)
-  # -------------------------------------------------------------
   - type: web
-    name: cloudpulse-frontend
-    runtime: static
+    name: cloudpulse-frontend-prod
+    env: static
+    branch: main
     rootDir: frontend
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://cloudpulse-backend-prod.onrender.com
     routes:
       - type: rewrite
         source: /*

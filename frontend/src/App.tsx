@@ -6,6 +6,7 @@ import { IncidentModal } from './components/IncidentModal';
 import { HealthResponse, Incident, IncidentSeverity, ServiceHealth } from './types';
 
 export const App: React.FC = () => {
+  const API_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [services, setServices] = useState<ServiceHealth[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -16,9 +17,9 @@ export const App: React.FC = () => {
     setLoading(true);
     try {
       const [hRes, sRes, iRes] = await Promise.all([
-        fetch('/health').catch(() => null),
-        fetch('/api/services').catch(() => null),
-        fetch('/api/incidents').catch(() => null),
+        fetch(`${API_URL}/health`).catch(() => null),
+        fetch(`${API_URL}/api/services`).catch(() => null),
+        fetch(`${API_URL}/api/incidents`).catch(() => null),
       ]);
 
       if (hRes && hRes.ok) {
@@ -102,7 +103,7 @@ export const App: React.FC = () => {
     severity: IncidentSeverity;
     description: string;
   }) => {
-    const res = await fetch('/api/incidents', {
+    const res = await fetch(`${API_URL}/api/incidents`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newInc),
