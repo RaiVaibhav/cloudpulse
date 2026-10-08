@@ -13,6 +13,8 @@ services:
     startCommand: npm run start
     healthCheckPath: /health
     envVars:
+      - key: NODE_VERSION
+        value: 20
       - key: NODE_ENV
         value: development
       - key: PORT
@@ -26,6 +28,8 @@ services:
     buildCommand: cd .. && npm install --include=dev && npm run build --workspace=frontend
     staticPublishPath: dist
     envVars:
+      - key: NODE_VERSION
+        value: 20
       - key: VITE_API_URL
         value: https://cloudpulse-backend-dev.onrender.com
     routes:
@@ -47,6 +51,8 @@ services:
     startCommand: npm run start
     healthCheckPath: /health
     envVars:
+      - key: NODE_VERSION
+        value: 20
       - key: NODE_ENV
         value: staging
       - key: PORT
@@ -60,6 +66,8 @@ services:
     buildCommand: cd .. && npm install --include=dev && npm run build --workspace=frontend
     staticPublishPath: dist
     envVars:
+      - key: NODE_VERSION
+        value: 20
       - key: VITE_API_URL
         value: https://cloudpulse-backend-stage.onrender.com
     routes:
@@ -81,6 +89,8 @@ services:
     startCommand: npm run start
     healthCheckPath: /health
     envVars:
+      - key: NODE_VERSION
+        value: 20
       - key: NODE_ENV
         value: production
       - key: PORT
@@ -94,6 +104,8 @@ services:
     buildCommand: cd .. && npm install --include=dev && npm run build --workspace=frontend
     staticPublishPath: dist
     envVars:
+      - key: NODE_VERSION
+        value: 20
       - key: VITE_API_URL
         value: https://cloudpulse-backend-prod.onrender.com
     routes:
