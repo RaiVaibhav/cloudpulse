@@ -1,4 +1,4 @@
-# CloudPulse: Enterprise Fullstack Monorepo with Automated CI/CD
+# CloudPulse - Enterprise Fullstack Monorepo with Automated CI/CD
 
 [![CI Quality Gate](https://img.shields.io/badge/CI-Automated%20Gates-blue.svg)](#ci-quality-gates--build-fail-checks)
 [![GitHub Container Registry](<https://img.shields.io/badge/Registry-GHCR%20(Free)-green.svg>)](https://github.com/features/packages)
@@ -129,6 +129,7 @@ setup-oracle-ci-cd/
    _(This runs `npm run typecheck`, `npm run test`, and `npm run build` across frontend and backend)._
 
 3. **Start both Backend and Frontend concurrently:**
+
    ```bash
    npm run dev
    ```
@@ -150,6 +151,7 @@ setup-oracle-ci-cd/
    _Features live hot-reloading for code changes in both frontend and backend._
 
 2. **Simulate the Production / Staging multi-stage containers:**
+
    ```bash
    docker compose -f docker-compose.stage.yml up --build
    ```
