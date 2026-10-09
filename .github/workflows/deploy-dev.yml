@@ -131,11 +131,8 @@ jobs:
           npm run build --workspace=frontend
 
       - name: Deploy Frontend to Cloudflare Pages (Dev)
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: cloudpulse-frontend-dev
-          directory: frontend/dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: develop
+          command: pages deploy frontend/dist --project-name=cloudpulse-frontend-dev
