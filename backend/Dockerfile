@@ -15,6 +15,7 @@ RUN npm install
 
 # Copy source code and TypeScript config
 COPY tsconfig.json ./
+COPY prisma ./prisma
 COPY src ./src
 
 # Typecheck and Build to JavaScript
@@ -44,6 +45,7 @@ USER node
 COPY --chown=node:node --from=builder /app/package.json ./package.json
 COPY --chown=node:node --from=builder /app/node_modules ./node_modules
 COPY --chown=node:node --from=builder /app/dist ./dist
+COPY --chown=node:node --from=builder /app/prisma ./prisma
 
 EXPOSE 4000
 
@@ -51,4 +53,4 @@ EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:4000/health || exit 1
 
-CMD ["node", "dist/server.js"]
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node dist/server.js"]
