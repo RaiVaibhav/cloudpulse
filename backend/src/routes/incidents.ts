@@ -6,8 +6,8 @@ export const incidentsRouter = Router();
 let incidents: Incident[] = [
   {
     id: 'inc-101',
-    title: 'Elevated latency on OCI Streaming queue consumer',
-    service: 'OCI Streaming & Queue',
+    title: 'Elevated latency on Streaming queue consumer',
+    service: 'Streaming & Queue',
     severity: 'warning',
     description: 'High burst of incoming telemetry packets causing message queue buffer backlog.',
     timestamp: new Date(Date.now() - 35 * 60 * 1000).toISOString(),
@@ -15,8 +15,8 @@ let incidents: Incident[] = [
   },
   {
     id: 'inc-100',
-    title: 'Autonomous Database scheduled maintenance completed',
-    service: 'Autonomous Database (ATP)',
+    title: 'Relational Database scheduled maintenance completed',
+    service: 'Relational Database',
     severity: 'info',
     description: 'Quarterly rolling security patch applied with zero downtime failover.',
     timestamp: new Date(Date.now() - 120 * 60 * 1000).toISOString(),
