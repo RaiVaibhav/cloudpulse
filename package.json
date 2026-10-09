@@ -19,6 +19,10 @@
     "docker:down": "docker compose down",
     "docker:stage:up": "docker compose -f docker-compose.stage.yml up -d --build"
   },
+  "dependencies": {
+    "@prisma/client": "5.21.1",
+    "prisma": "5.21.1"
+  },
   "keywords": [
     "oracle-cloud",
     "ci-cd",
