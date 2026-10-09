@@ -1,10 +1,26 @@
 import request from 'supertest';
 import { createApp } from '../app';
+import { prisma } from '../prisma';
+
+jest.mock('../prisma', () => ({
+  prisma: {
+    incident: {
+      findMany: jest.fn(),
+      create: jest.fn(),
+    },
+  },
+}));
 
 describe('Incidents API', () => {
   const app = createApp();
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('GET /api/incidents should return a list of incidents', async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([{ id: '1', title: 'Test' }]);
+    
     const res = await request(app).get('/api/incidents');
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
@@ -18,6 +34,14 @@ describe('Incidents API', () => {
       severity: 'warning',
       description: 'Investigating sporadic timeout errors on health probes.',
     };
+
+    (prisma.incident.create as jest.Mock).mockResolvedValue({
+      id: 'mocked-id',
+      ...payload,
+      status: 'investigating',
+      createdAt: new Date(),
+    });
+
 
     const res = await request(app).post('/api/incidents').send(payload);
     expect(res.status).toBe(201);
