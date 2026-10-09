@@ -59,4 +59,4 @@ EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:4000/health || exit 1
 
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node dist/server.js"]
+CMD ["sh", "-c", "if [ -z \"$DATABASE_URL\" ] || [ \"$DATABASE_URL\" = \"postgresql://dummy:dummy@localhost:5432/dummy\" ]; then echo '⚠️ WARNING: DATABASE_URL is missing or invalid. Skipping Prisma db push!'; else npx prisma db push --accept-data-loss; fi && node dist/server.js"]
