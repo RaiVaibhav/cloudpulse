@@ -19,6 +19,8 @@ COPY prisma ./prisma
 COPY src ./src
 
 # Typecheck and Build to JavaScript
+# We provide a dummy DATABASE_URL here because Prisma requires it to exist for schema validation during 'prisma generate'
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 RUN npm run typecheck
 RUN npm run build
 
