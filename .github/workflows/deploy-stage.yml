@@ -94,18 +94,6 @@ jobs:
             ghcr.io/${{ env.REPO_OWNER }}/${{ env.BACKEND_IMAGE }}:stage-${{ github.sha }}
             ghcr.io/${{ env.REPO_OWNER }}/${{ env.BACKEND_IMAGE }}:stage-latest
 
-      # -------------------------------------------------------------
-      # 4. Build & Push Frontend Container to GHCR (Stage Tags)
-      # -------------------------------------------------------------
-      - name: Build & Push Frontend Container (Stage)
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
-          push: true
-          tags: |
-            ghcr.io/${{ env.REPO_OWNER }}/${{ env.FRONTEND_IMAGE }}:stage-${{ github.sha }}
-            ghcr.io/${{ env.REPO_OWNER }}/${{ env.FRONTEND_IMAGE }}:stage-latest
 
       # -------------------------------------------------------------
       # 5. Staging Zero-Downtime Deployment & Health Verification Gate
@@ -115,7 +103,6 @@ jobs:
           echo "=========================================================="
           echo "Initiating Zero-Downtime Rollout to STAGE Environment"
           echo "Backend:  ghcr.io/${{ env.REPO_OWNER }}/${{ env.BACKEND_IMAGE }}:stage-${{ github.sha }}"
-          echo "Frontend: ghcr.io/${{ env.REPO_OWNER }}/${{ env.FRONTEND_IMAGE }}:stage-${{ github.sha }}"
           echo "Target Environment: STAGE"
           echo "Commit SHA: ${{ github.sha }}"
           echo "=========================================================="
@@ -138,13 +125,17 @@ jobs:
             echo "RENDER_BACKEND_STAGE_DEPLOY_HOOK secret is not set. Skipping."
           fi
           
-      - name: Trigger Render Frontend Deployment
-        env:
-          RENDER_FRONTEND_STAGE_DEPLOY_HOOK: ${{ secrets.RENDER_FRONTEND_STAGE_DEPLOY_HOOK }}
+      - name: Build Frontend for Cloudflare
         run: |
-          if [ -n "$RENDER_FRONTEND_STAGE_DEPLOY_HOOK" ]; then
-            echo "Triggering Render to deploy Frontend..."
-            curl -X POST "$RENDER_FRONTEND_STAGE_DEPLOY_HOOK"
-          else
-            echo "RENDER_FRONTEND_STAGE_DEPLOY_HOOK secret is not set. Skipping."
-          fi
+          npm install
+          npm run build --workspace=frontend
+
+      - name: Deploy Frontend to Cloudflare Pages (Stage)
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: cloudpulse-frontend-stage
+          directory: frontend/dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
