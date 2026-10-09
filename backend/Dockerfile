@@ -3,12 +3,15 @@
 # ---------------------------------------------------------
 
 # Stage 1: Build & Compile TypeScript
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
 # Copy dependency manifests
 COPY package.json ./
+
+# Install openssl for Prisma schema validation
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 # Install all dependencies (including devDependencies for build & typecheck)
 RUN npm install
@@ -30,15 +33,16 @@ RUN npm prune --production
 # ---------------------------------------------------------
 # Stage 2: Minimal Production Runtime
 # ---------------------------------------------------------
-FROM node:20-alpine AS runner
+FROM node:20-slim AS runner
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=4000
+ENV PRISMA_CLIENT_ENGINE_TYPE=binary
 
-# Install curl for container health check probes
-RUN apk add --no-cache curl
+# Install curl and openssl for container health check probes and Prisma
+RUN apt-get update && apt-get install -y curl openssl && rm -rf /var/lib/apt/lists/*
 
 # Security: Non-root user
 USER node
