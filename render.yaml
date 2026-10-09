@@ -18,7 +18,9 @@ services:
       - key: PORT
         value: 10000
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: cloudpulse-db-dev
+          property: connectionString
 
   # =============================================================
   # 🟡 STAGING ENVIRONMENT (Tracks 'main' branch)
@@ -39,7 +41,9 @@ services:
       - key: PORT
         value: 10000
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: cloudpulse-db-stage
+          property: connectionString
 
   # =============================================================
   # 🔴 PRODUCTION ENVIRONMENT (Tracks 'main' release branch)
@@ -60,6 +64,25 @@ services:
       - key: PORT
         value: 10000
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: cloudpulse-db-prod
+          property: connectionString
 
+databases:
+  - name: cloudpulse-db-dev
+    databaseName: cloudpulse_dev
+    user: cloudpulse_user
+    plan: free
+    region: oregon
 
+  - name: cloudpulse-db-stage
+    databaseName: cloudpulse_stage
+    user: cloudpulse_user
+    plan: free
+    region: oregon
+
+  - name: cloudpulse-db-prod
+    databaseName: cloudpulse_prod
+    user: cloudpulse_user
+    plan: free
+    region: oregon
