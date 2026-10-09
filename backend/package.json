@@ -7,11 +7,10 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "npx prisma generate && tsc --noEmit",
     "test": "jest --passWithNoTests --detectOpenHandles",
     "test:coverage": "jest --coverage",
-    "lint": "tsc --noEmit",
-    "postinstall": "prisma generate"
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@prisma/client": "^7.10.0",
