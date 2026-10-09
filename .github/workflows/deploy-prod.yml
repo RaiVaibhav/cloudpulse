@@ -152,7 +152,7 @@ jobs:
       - name: Build Frontend for Cloudflare
         run: |
           npm install
-          npm run build --workspace=frontend
+          VITE_API_URL=https://cloudpulse-backend-prod.onrender.com npm run build --workspace=frontend
 
       - name: Deploy Frontend to Cloudflare Pages (Prod)
         uses: cloudflare/wrangler-action@v3
