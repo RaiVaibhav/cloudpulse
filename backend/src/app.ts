@@ -8,7 +8,26 @@ export function createApp(): Express {
   const app = express();
 
   // Middleware
-  app.use(cors());
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'https://cloudpulse-frontend-dev.pages.dev',
+    'https://cloudpulse-frontend-stage.pages.dev',
+    'https://cloudpulse-frontend-prod.pages.dev',
+  ];
+
+  app.use(cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'test') {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true
+  }));
   app.use(express.json());
 
   // Request logger
