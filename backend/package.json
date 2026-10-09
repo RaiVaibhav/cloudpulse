@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "jest --passWithNoTests --detectOpenHandles",
     "test:coverage": "jest --coverage",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^7.10.0",
