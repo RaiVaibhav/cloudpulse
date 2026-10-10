@@ -59,3 +59,47 @@ incidentsRouter.post('/', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to create incident' });
   }
 });
+
+incidentsRouter.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const body: Partial<Incident> = req.body;
+    
+    // We only allow updating status or severity
+    const updateData: any = {};
+    if (body.status && ['investigating', 'identified', 'resolved'].includes(body.status)) {
+      updateData.status = body.status;
+    }
+    if (body.severity && ['critical', 'warning', 'info'].includes(body.severity)) {
+      updateData.severity = body.severity;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      res.status(400).json({ error: 'No valid fields provided for update.' });
+      return;
+    }
+
+    const updatedIncident = await prisma.incident.update({
+      where: { id },
+      data: updateData,
+    });
+
+    res.status(200).json(updatedIncident);
+  } catch (error) {
+    console.error('Failed to update incident', error);
+    res.status(500).json({ error: 'Failed to update incident' });
+  }
+});
+
+incidentsRouter.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await prisma.incident.delete({
+      where: { id },
+    });
+    res.status(204).send();
+  } catch (error) {
+    console.error('Failed to delete incident', error);
+    res.status(500).json({ error: 'Failed to delete incident' });
+  }
+});
