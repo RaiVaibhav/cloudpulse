@@ -1,34 +1,23 @@
 import { Request, Response, Router } from 'express';
 import { CreateIncidentPayload, Incident } from '../types';
 
+import { prisma } from '../prisma';
+
 export const incidentsRouter = Router();
 
-let incidents: Incident[] = [
-  {
-    id: 'inc-101',
-    title: 'Elevated latency on OCI Streaming queue consumer',
-    service: 'OCI Streaming & Queue',
-    severity: 'warning',
-    description: 'High burst of incoming telemetry packets causing message queue buffer backlog.',
-    timestamp: new Date(Date.now() - 35 * 60 * 1000).toISOString(),
-    status: 'investigating',
-  },
-  {
-    id: 'inc-100',
-    title: 'Autonomous Database scheduled maintenance completed',
-    service: 'Autonomous Database (ATP)',
-    severity: 'info',
-    description: 'Quarterly rolling security patch applied with zero downtime failover.',
-    timestamp: new Date(Date.now() - 120 * 60 * 1000).toISOString(),
-    status: 'resolved',
-  },
-];
-
-incidentsRouter.get('/', (_req: Request, res: Response) => {
-  res.status(200).json(incidents);
+incidentsRouter.get('/', async (_req: Request, res: Response) => {
+  try {
+    const incidents = await prisma.incident.findMany({
+      orderBy: { timestamp: 'desc' },
+    });
+    res.status(200).json(incidents);
+  } catch (error) {
+    console.error('Failed to fetch incidents from database', error);
+    res.status(500).json({ error: 'Failed to fetch incidents' });
+  }
 });
 
-incidentsRouter.post('/', (req: Request, res: Response) => {
+incidentsRouter.post('/', async (req: Request, res: Response) => {
   const body: Partial<CreateIncidentPayload> = req.body;
 
   if (!body.title || typeof body.title !== 'string' || body.title.trim().length === 0) {
@@ -53,16 +42,64 @@ incidentsRouter.post('/', (req: Request, res: Response) => {
     return;
   }
 
-  const newIncident: Incident = {
-    id: `inc-${Date.now().toString(36)}`,
-    title: body.title.trim(),
-    service: body.service.trim(),
-    severity: body.severity,
-    description: body.description.trim(),
-    timestamp: new Date().toISOString(),
-    status: 'investigating',
-  };
+  try {
+    const newIncident = await prisma.incident.create({
+      data: {
+        title: body.title.trim(),
+        service: body.service.trim(),
+        severity: body.severity,
+        description: body.description.trim(),
+        status: 'investigating',
+      },
+    });
 
-  incidents.unshift(newIncident);
-  res.status(201).json(newIncident);
+    res.status(201).json(newIncident);
+  } catch (error) {
+    console.error('Failed to insert incident into database', error);
+    res.status(500).json({ error: 'Failed to create incident' });
+  }
+});
+
+incidentsRouter.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const body: Partial<Incident> = req.body;
+    
+    // We only allow updating status or severity
+    const updateData: any = {};
+    if (body.status && ['investigating', 'identified', 'resolved'].includes(body.status)) {
+      updateData.status = body.status;
+    }
+    if (body.severity && ['critical', 'warning', 'info'].includes(body.severity)) {
+      updateData.severity = body.severity;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      res.status(400).json({ error: 'No valid fields provided for update.' });
+      return;
+    }
+
+    const updatedIncident = await prisma.incident.update({
+      where: { id },
+      data: updateData,
+    });
+
+    res.status(200).json(updatedIncident);
+  } catch (error) {
+    console.error('Failed to update incident', error);
+    res.status(500).json({ error: 'Failed to update incident' });
+  }
+});
+
+incidentsRouter.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await prisma.incident.delete({
+      where: { id },
+    });
+    res.status(204).send();
+  } catch (error) {
+    console.error('Failed to delete incident', error);
+    res.status(500).json({ error: 'Failed to delete incident' });
+  }
 });

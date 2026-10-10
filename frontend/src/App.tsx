@@ -118,6 +118,33 @@ export const App: React.FC = () => {
     setIncidents((prev) => [created, ...prev]);
   };
 
+  const handleUpdateIncident = async (id: string, updates: { status?: string; severity?: string }) => {
+    const res = await fetch(`${API_URL}/api/incidents/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+
+    if (!res.ok) {
+      console.error('Failed to update incident');
+      return;
+    }
+    const updated = await res.json();
+    setIncidents((prev) => prev.map((inc) => (inc.id === id ? updated : inc)));
+  };
+
+  const handleDeleteIncident = async (id: string) => {
+    const res = await fetch(`${API_URL}/api/incidents/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!res.ok) {
+      console.error('Failed to delete incident');
+      return;
+    }
+    setIncidents((prev) => prev.filter((inc) => inc.id !== id));
+  };
+
   const operationalCount = services.filter((s) => s.status === 'operational').length;
   const avgLatency = services.length
     ? Math.round(services.reduce((acc, s) => acc + s.latencyMs, 0) / services.length)
@@ -194,7 +221,11 @@ export const App: React.FC = () => {
           </button>
         </div>
 
-        <IncidentList incidents={incidents} />
+        <IncidentList 
+          incidents={incidents} 
+          onUpdate={handleUpdateIncident}
+          onDelete={handleDeleteIncident}
+        />
       </section>
 
       <IncidentModal

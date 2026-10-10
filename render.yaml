@@ -17,23 +17,10 @@ services:
         value: development
       - key: PORT
         value: 10000
-
-  - type: web
-    name: cloudpulse-frontend-dev
-    env: static
-    branch: develop
-    rootDir: frontend
-    buildCommand: cd .. && npm install --include=dev && npm run build --workspace=frontend
-    staticPublishPath: dist
-    envVars:
-      - key: NODE_VERSION
-        value: 20
-      - key: VITE_API_URL
-        value: https://cloudpulse-backend-dev.onrender.com
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cloudpulse-db-dev
+          property: connectionString
 
   # =============================================================
   # 🟡 STAGING ENVIRONMENT (Tracks 'main' branch)
@@ -53,23 +40,10 @@ services:
         value: staging
       - key: PORT
         value: 10000
-
-  - type: web
-    name: cloudpulse-frontend-stage
-    env: static
-    branch: main
-    rootDir: frontend
-    buildCommand: cd .. && npm install --include=dev && npm run build --workspace=frontend
-    staticPublishPath: dist
-    envVars:
-      - key: NODE_VERSION
-        value: 20
-      - key: VITE_API_URL
-        value: https://cloudpulse-backend-stage.onrender.com
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cloudpulse-db-stage
+          property: connectionString
 
   # =============================================================
   # 🔴 PRODUCTION ENVIRONMENT (Tracks 'main' release branch)
@@ -89,20 +63,26 @@ services:
         value: production
       - key: PORT
         value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cloudpulse-db-prod
+          property: connectionString
 
-  - type: web
-    name: cloudpulse-frontend-prod
-    env: static
-    branch: main
-    rootDir: frontend
-    buildCommand: cd .. && npm install --include=dev && npm run build --workspace=frontend
-    staticPublishPath: dist
-    envVars:
-      - key: NODE_VERSION
-        value: 20
-      - key: VITE_API_URL
-        value: https://cloudpulse-backend-prod.onrender.com
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+databases:
+  - name: cloudpulse-db-dev
+    databaseName: cloudpulse_dev
+    user: cloudpulse_user
+    plan: free
+    region: oregon
+
+  - name: cloudpulse-db-stage
+    databaseName: cloudpulse_stage
+    user: cloudpulse_user
+    plan: free
+    region: oregon
+
+  - name: cloudpulse-db-prod
+    databaseName: cloudpulse_prod
+    user: cloudpulse_user
+    plan: free
+    region: oregon

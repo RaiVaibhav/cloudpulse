@@ -1,4 +1,4 @@
-# CloudPulse - Enterprise Fullstack Monorepo with Automated CI/CD
+# CloudPulse: Enterprise Fullstack Monorepo with Automated CI/CD
 
 [![CI Quality Gate](https://img.shields.io/badge/CI-Automated%20Gates-blue.svg)](#ci-quality-gates--build-fail-checks)
 [![GitHub Container Registry](<https://img.shields.io/badge/Registry-GHCR%20(Free)-green.svg>)](https://github.com/features/packages)

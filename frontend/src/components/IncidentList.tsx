@@ -3,9 +3,11 @@ import { Incident } from '../types';
 
 interface IncidentListProps {
   incidents: Incident[];
+  onUpdate: (id: string, updates: { status?: string; severity?: string }) => void;
+  onDelete: (id: string) => void;
 }
 
-export const IncidentList: React.FC<IncidentListProps> = ({ incidents }) => {
+export const IncidentList: React.FC<IncidentListProps> = ({ incidents, onUpdate, onDelete }) => {
   if (incidents.length === 0) {
     return (
       <div className="empty-state">
@@ -40,6 +42,24 @@ export const IncidentList: React.FC<IncidentListProps> = ({ incidents }) => {
               <span>Status: {inc.status}</span>
               <span>{new Date(inc.timestamp).toLocaleString()}</span>
             </div>
+          </div>
+          <div className="incident-actions" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginLeft: 'auto' }}>
+            {inc.status !== 'resolved' && (
+              <button 
+                className="btn-secondary" 
+                style={{ fontSize: '0.8rem', padding: '0.2rem 0.5rem', cursor: 'pointer' }}
+                onClick={() => onUpdate(inc.id, { status: 'resolved' })}
+              >
+                Resolve
+              </button>
+            )}
+            <button 
+              className="btn-secondary" 
+              style={{ fontSize: '0.8rem', padding: '0.2rem 0.5rem', cursor: 'pointer', borderColor: 'var(--severity-critical)', color: 'var(--severity-critical)' }}
+              onClick={() => onDelete(inc.id)}
+            >
+              Delete
+            </button>
           </div>
         </div>
       ))}

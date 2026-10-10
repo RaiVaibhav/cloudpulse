@@ -94,18 +94,6 @@ jobs:
             ghcr.io/${{ env.REPO_OWNER }}/${{ env.BACKEND_IMAGE }}:dev-${{ github.sha }}
             ghcr.io/${{ env.REPO_OWNER }}/${{ env.BACKEND_IMAGE }}:dev-latest
 
-      # -------------------------------------------------------------
-      # 4. Build & Push Frontend Container to GHCR (and OCIR if active)
-      # -------------------------------------------------------------
-      - name: Build & Push Frontend Container
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
-          push: true
-          tags: |
-            ghcr.io/${{ env.REPO_OWNER }}/${{ env.FRONTEND_IMAGE }}:dev-${{ github.sha }}
-            ghcr.io/${{ env.REPO_OWNER }}/${{ env.FRONTEND_IMAGE }}:dev-latest
 
       # -------------------------------------------------------------
       # 5. Automated Dev Deployment Verification
@@ -115,7 +103,6 @@ jobs:
           echo "=========================================================="
           echo "🚀 Successfully pushed images to GitHub Container Registry!"
           echo "Backend:  ghcr.io/${{ env.REPO_OWNER }}/${{ env.BACKEND_IMAGE }}:dev-${{ github.sha }}"
-          echo "Frontend: ghcr.io/${{ env.REPO_OWNER }}/${{ env.FRONTEND_IMAGE }}:dev-${{ github.sha }}"
           echo "Target Environment: DEV"
           echo "Commit SHA: ${{ github.sha }}"
           echo "=========================================================="
@@ -138,13 +125,14 @@ jobs:
             echo "RENDER_BACKEND_DEV_DEPLOY_HOOK secret is not set. Skipping."
           fi
           
-      - name: Trigger Render Frontend Deployment
-        env:
-          RENDER_FRONTEND_DEV_DEPLOY_HOOK: ${{ secrets.RENDER_FRONTEND_DEV_DEPLOY_HOOK }}
+      - name: Build Frontend for Cloudflare
         run: |
-          if [ -n "$RENDER_FRONTEND_DEV_DEPLOY_HOOK" ]; then
-            echo "Triggering Render to deploy Frontend..."
-            curl -X POST "$RENDER_FRONTEND_DEV_DEPLOY_HOOK"
-          else
-            echo "RENDER_FRONTEND_DEV_DEPLOY_HOOK secret is not set. Skipping."
-          fi
+          npm install
+          VITE_API_URL=https://cloudpulse-backend-dev.onrender.com npm run build --workspace=frontend
+
+      - name: Deploy Frontend to Cloudflare Pages (Dev)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy frontend/dist --project-name=cloudpulse-frontend-dev

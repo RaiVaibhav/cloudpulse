@@ -109,19 +109,7 @@ jobs:
             ghcr.io/${{ env.REPO_OWNER }}/${{ env.BACKEND_IMAGE }}:prod-${{ github.sha }}
             ghcr.io/${{ env.REPO_OWNER }}/${{ env.BACKEND_IMAGE }}:prod-latest
 
-      # -------------------------------------------------------------
-      # 4. Build & Tag Production Frontend Container
-      # -------------------------------------------------------------
-      - name: Build & Push Frontend Container (Production)
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
-          push: true
-          tags: |
-            ghcr.io/${{ env.REPO_OWNER }}/${{ env.FRONTEND_IMAGE }}:${{ env.RELEASE_VERSION }}
-            ghcr.io/${{ env.REPO_OWNER }}/${{ env.FRONTEND_IMAGE }}:prod-${{ github.sha }}
-            ghcr.io/${{ env.REPO_OWNER }}/${{ env.FRONTEND_IMAGE }}:prod-latest
+
 
       # -------------------------------------------------------------
       # 5. Production Zero-Downtime Rollout Strategy
@@ -131,7 +119,6 @@ jobs:
           echo "=========================================================="
           echo "🚨 EXECUTING PRODUCTION DEPLOYMENT: ${{ env.RELEASE_VERSION }}"
           echo "Backend Image:  ghcr.io/${{ env.REPO_OWNER }}/${{ env.BACKEND_IMAGE }}:${{ env.RELEASE_VERSION }}"
-          echo "Frontend Image: ghcr.io/${{ env.REPO_OWNER }}/${{ env.FRONTEND_IMAGE }}:${{ env.RELEASE_VERSION }}"
           echo "Timestamp:      $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
           echo "Commit SHA:     ${{ github.sha }}"
           echo "=========================================================="
@@ -162,13 +149,14 @@ jobs:
             echo "RENDER_BACKEND_PROD_DEPLOY_HOOK secret is not set. Skipping."
           fi
           
-      - name: Trigger Render Frontend Deployment
-        env:
-          RENDER_FRONTEND_PROD_DEPLOY_HOOK: ${{ secrets.RENDER_FRONTEND_PROD_DEPLOY_HOOK }}
+      - name: Build Frontend for Cloudflare
         run: |
-          if [ -n "$RENDER_FRONTEND_PROD_DEPLOY_HOOK" ]; then
-            echo "Triggering Render to deploy Frontend..."
-            curl -X POST "$RENDER_FRONTEND_PROD_DEPLOY_HOOK"
-          else
-            echo "RENDER_FRONTEND_PROD_DEPLOY_HOOK secret is not set. Skipping."
-          fi
+          npm install
+          VITE_API_URL=https://cloudpulse-backend-prod.onrender.com npm run build --workspace=frontend
+
+      - name: Deploy Frontend to Cloudflare Pages (Prod)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy frontend/dist --project-name=cloudpulse-frontend-prod
